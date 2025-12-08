@@ -5,6 +5,7 @@ import com.jakbu.util.JwtUtil;
 import com.jakbu.dto.AuthRequest;
 import com.jakbu.dto.AuthResponse;
 import com.jakbu.dto.LoginRequest;
+import com.jakbu.dto.RefreshTokenRequest;
 import com.jakbu.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,15 @@ public class AuthService {
         User user = new User(request.accountId(), encodedPassword, request.name());
         user = userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getId());
-        return new AuthResponse(token, user.getId(), user.getName());
+        // 엑세스 토큰과 리프레시 토큰 생성
+        String accessToken = jwtUtil.generateAccessToken(user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+
+        // 리프레시 토큰을 DB에 저장
+        user.updateRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        return new AuthResponse(accessToken, refreshToken, user.getId(), user.getName());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -45,8 +53,39 @@ public class AuthService {
             throw new RuntimeException("Invalid account ID or password");
         }
 
-        String token = jwtUtil.generateToken(user.getId());
-        return new AuthResponse(token, user.getId(), user.getName());
+        // 엑세스 토큰과 리프레시 토큰 생성
+        String accessToken = jwtUtil.generateAccessToken(user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+
+        // 리프레시 토큰을 DB에 저장
+        user.updateRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        return new AuthResponse(accessToken, refreshToken, user.getId(), user.getName());
+    }
+
+    /**
+     * 리프레시 토큰을 사용하여 새로운 엑세스 토큰 발급
+     */
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.refreshToken();
+
+        // 리프레시 토큰이 DB에 있는지 확인
+        User user = userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+        // 리프레시 토큰 검증
+        if (!jwtUtil.validateToken(refreshToken)) {
+            // 유효하지 않은 리프레시 토큰이면 DB에서 제거
+            user.updateRefreshToken(null);
+            userRepository.save(user);
+            throw new RuntimeException("Invalid or expired refresh token");
+        }
+
+        // 새로운 엑세스 토큰 생성
+        String newAccessToken = jwtUtil.generateAccessToken(user.getId());
+
+        return new AuthResponse(newAccessToken, refreshToken, user.getId(), user.getName());
     }
 }
 

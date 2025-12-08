@@ -45,7 +45,8 @@ Account ID와 비밀번호로 회원가입합니다.
 **Response** (200 OK):
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "userId": 1,
   "name": "홍길동"
 }
@@ -54,7 +55,8 @@ Account ID와 비밀번호로 회원가입합니다.
 **Response 필드**:
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| token | String | JWT 인증 토큰 |
+| accessToken | String | JWT 엑세스 토큰 (1시간 유효) |
+| refreshToken | String | JWT 리프레시 토큰 (30일 유효) |
 | userId | Long | 사용자 ID |
 | name | String | 사용자 이름 |
 
@@ -100,7 +102,8 @@ Account ID와 비밀번호로 로그인합니다.
 **Response** (200 OK):
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "userId": 1,
   "name": "홍길동"
 }
@@ -113,6 +116,66 @@ Account ID와 비밀번호로 로그인합니다.
     "message": "Invalid account ID or password"
   }
   ```
+
+---
+
+### 1.3 리프레시 토큰으로 엑세스 토큰 재발급
+
+리프레시 토큰을 사용하여 새로운 엑세스 토큰을 발급받습니다.
+
+**Endpoint**: `POST /auth/refresh-token`
+
+**인증**: 불필요
+
+**Request Body**:
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Request 필드**:
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| refreshToken | String | ✅ | 리프레시 토큰 |
+
+**Response** (200 OK):
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "userId": 1,
+  "name": "홍길동"
+}
+```
+
+**Response 필드**:
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| accessToken | String | 새로 발급된 JWT 엑세스 토큰 (1시간 유효) |
+| refreshToken | String | 기존 리프레시 토큰 (30일 유효) |
+| userId | Long | 사용자 ID |
+| name | String | 사용자 이름 |
+
+**에러 응답**:
+- `400 Bad Request`: 리프레시 토큰이 유효하지 않거나 만료된 경우
+  ```json
+  {
+    "message": "Invalid refresh token"
+  }
+  ```
+  또는
+  ```json
+  {
+    "message": "Invalid or expired refresh token"
+  }
+  ```
+
+**사용 시나리오**:
+1. 클라이언트가 엑세스 토큰으로 API 호출
+2. 엑세스 토큰이 만료되면 401 Unauthorized 응답
+3. 클라이언트가 리프레시 토큰으로 `/auth/refresh-token` 호출
+4. 새로운 엑세스 토큰을 받아서 다시 API 호출
 
 ---
 
@@ -591,6 +654,15 @@ curl -X POST https://jakbu-api.dsmhs.kr/auth/login \
   -d '{
     "accountId": "user123",
     "password": "password123"
+  }'
+```
+
+#### 리프레시 토큰으로 엑세스 토큰 재발급
+```bash
+curl -X POST https://jakbu-api.dsmhs.kr/auth/refresh-token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }'
 ```
 

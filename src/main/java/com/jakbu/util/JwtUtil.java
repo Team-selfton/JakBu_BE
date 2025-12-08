@@ -14,16 +14,23 @@ import java.util.Date;
 public class JwtUtil {
 
     private final SecretKey secretKey;
-    private final long expiration;
+    private final long accessTokenExpiration;
+    private final long refreshTokenExpiration;
 
-    public JwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") long expiration) {
+    public JwtUtil(@Value("${jwt.secret}") String secret,
+                   @Value("${jwt.access-token-expiration}") long accessTokenExpiration,
+                   @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expiration = expiration;
+        this.accessTokenExpiration = accessTokenExpiration;
+        this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public String generateToken(Long userId) {
+    /**
+     * 엑세스 토큰 생성 (1시간 유효)
+     */
+    public String generateAccessToken(Long userId) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
+        Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
@@ -31,6 +38,28 @@ public class JwtUtil {
                 .expiration(expiryDate)
                 .signWith(secretKey)
                 .compact();
+    }
+
+    /**
+     * 리프레시 토큰 생성 (30일 유효)
+     */
+    public String generateRefreshToken(Long userId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
+
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    /**
+     * 기존 메서드 (하위 호환성 유지)
+     */
+    public String generateToken(Long userId) {
+        return generateAccessToken(userId);
     }
 
     public Long getUserIdFromToken(String token) {

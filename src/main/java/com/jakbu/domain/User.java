@@ -32,6 +32,9 @@ public class User {
     @Column(nullable = true)
     private String fcmToken;
 
+    @Column(nullable = true, length = 500)
+    private String refreshToken;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,6 +51,10 @@ public class User {
 
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
 

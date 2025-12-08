@@ -3,6 +3,7 @@ package com.jakbu.controller;
 import com.jakbu.dto.AuthRequest;
 import com.jakbu.dto.AuthResponse;
 import com.jakbu.dto.LoginRequest;
+import com.jakbu.dto.RefreshTokenRequest;
 import com.jakbu.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        AuthResponse response = authService.refreshToken(request);
         return ResponseEntity.ok(response);
     }
 }

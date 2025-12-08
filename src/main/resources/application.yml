@@ -19,7 +19,8 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000} # 1 hour in milliseconds
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:2592000000} # 30 days in milliseconds
 
 firebase:
   config-base64: ${FIREBASE_CONFIG_BASE64}
