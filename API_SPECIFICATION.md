@@ -20,7 +20,7 @@ Authorization: Bearer {JWT_TOKEN}
 
 ### 1.1 회원가입
 
-일반 이메일/비밀번호로 회원가입합니다.
+Account ID와 비밀번호로 회원가입합니다.
 
 **Endpoint**: `POST /auth/signup`
 
@@ -29,7 +29,7 @@ Authorization: Bearer {JWT_TOKEN}
 **Request Body**:
 ```json
 {
-  "email": "user@example.com",
+  "accountId": "user123",
   "password": "password123",
   "name": "홍길동"
 }
@@ -38,9 +38,9 @@ Authorization: Bearer {JWT_TOKEN}
 **Request 필드**:
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
-| email | String | ✅ | 이메일 주소 (유효한 이메일 형식) |
-| password | String | ✅ | 비밀번호 |
-| name | String | ✅ | 사용자 이름 |
+| accountId | String | ✅ | 계정 ID (3-50자) |
+| password | String | ✅ | 비밀번호 (최소 6자) |
+| name | String | ✅ | 사용자 이름 (1-100자) |
 
 **Response** (200 OK):
 ```json
@@ -59,17 +59,17 @@ Authorization: Bearer {JWT_TOKEN}
 | name | String | 사용자 이름 |
 
 **에러 응답**:
-- `400 Bad Request`: 이메일이 이미 존재하는 경우
+- `400 Bad Request`: Account ID가 이미 존재하는 경우
   ```json
   {
-    "message": "Email already exists"
+    "message": "Account ID already exists"
   }
   ```
 - `400 Bad Request`: 유효성 검증 실패
   ```json
   {
-    "email": "Email should be valid",
-    "password": "Password is required"
+    "accountId": "Account ID must be between 3 and 50 characters",
+    "password": "Password must be at least 6 characters"
   }
   ```
 
@@ -77,7 +77,7 @@ Authorization: Bearer {JWT_TOKEN}
 
 ### 1.2 로그인
 
-일반 이메일/비밀번호로 로그인합니다.
+Account ID와 비밀번호로 로그인합니다.
 
 **Endpoint**: `POST /auth/login`
 
@@ -86,7 +86,7 @@ Authorization: Bearer {JWT_TOKEN}
 **Request Body**:
 ```json
 {
-  "email": "user@example.com",
+  "accountId": "user123",
   "password": "password123"
 }
 ```
@@ -94,7 +94,7 @@ Authorization: Bearer {JWT_TOKEN}
 **Request 필드**:
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|
-| email | String | ✅ | 이메일 주소 |
+| accountId | String | ✅ | 계정 ID |
 | password | String | ✅ | 비밀번호 |
 
 **Response** (200 OK):
@@ -107,49 +107,10 @@ Authorization: Bearer {JWT_TOKEN}
 ```
 
 **에러 응답**:
-- `400 Bad Request`: 이메일 또는 비밀번호가 잘못된 경우
+- `400 Bad Request`: Account ID 또는 비밀번호가 잘못된 경우
   ```json
   {
-    "message": "Invalid email or password"
-  }
-  ```
-
----
-
-### 1.3 카카오 로그인
-
-카카오 소셜 로그인을 수행합니다. 카카오 ID로 사용자가 없으면 자동으로 회원가입됩니다.
-
-**Endpoint**: `POST /auth/kakao`
-
-**인증**: 불필요
-
-**Request Body**:
-```json
-{
-  "accessToken": "카카오_액세스_토큰"
-}
-```
-
-**Request 필드**:
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| accessToken | String | ✅ | 카카오에서 발급받은 액세스 토큰 |
-
-**Response** (200 OK):
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "userId": 1,
-  "name": "홍길동"
-}
-```
-
-**에러 응답**:
-- `400 Bad Request`: 카카오 API 호출 실패
-  ```json
-  {
-    "message": "Failed to get Kakao user info: ..."
+    "message": "Invalid account ID or password"
   }
   ```
 
@@ -520,7 +481,7 @@ JWT 토큰이 없거나 유효하지 않은 경우:
 curl -X POST http://localhost:8080/auth/signup \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "user@example.com",
+    "accountId": "user123",
     "password": "password123",
     "name": "홍길동"
   }'
@@ -531,7 +492,7 @@ curl -X POST http://localhost:8080/auth/signup \
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "user@example.com",
+    "accountId": "user123",
     "password": "password123"
   }'
 ```

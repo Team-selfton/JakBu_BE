@@ -25,12 +25,12 @@ public class AuthService {
     }
 
     public AuthResponse signup(AuthRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+        if (userRepository.findByAccountId(request.accountId()).isPresent()) {
+            throw new RuntimeException("Account ID already exists");
         }
 
         String encodedPassword = passwordEncoder.encode(request.password());
-        User user = new User(request.email(), encodedPassword, request.name());
+        User user = new User(request.accountId(), encodedPassword, request.name());
         user = userRepository.save(user);
 
         String token = jwtUtil.generateToken(user.getId());
@@ -38,11 +38,11 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+        User user = userRepository.findByAccountId(request.accountId())
+                .orElseThrow(() -> new RuntimeException("Invalid account ID or password"));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new RuntimeException("Invalid account ID or password");
         }
 
         String token = jwtUtil.generateToken(user.getId());
