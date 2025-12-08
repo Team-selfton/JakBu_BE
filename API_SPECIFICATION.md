@@ -2,7 +2,7 @@
 
 ## 기본 정보
 
-- **Base URL**: `http://localhost:8080`
+- **Base URL**: `https://jakbu-api.dsmhs.kr`
 - **인증 방식**: JWT Bearer Token
 - **Content-Type**: `application/json`
 
@@ -478,7 +478,7 @@ JWT 토큰이 없거나 유효하지 않은 경우:
 
 #### 회원가입
 ```bash
-curl -X POST http://localhost:8080/auth/signup \
+curl -X POST https://jakbu-api.dsmhs.kr/auth/signup \
   -H "Content-Type: application/json" \
   -d '{
     "accountId": "user123",
@@ -489,7 +489,7 @@ curl -X POST http://localhost:8080/auth/signup \
 
 #### 로그인
 ```bash
-curl -X POST http://localhost:8080/auth/login \
+curl -X POST https://jakbu-api.dsmhs.kr/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "accountId": "user123",
@@ -499,7 +499,7 @@ curl -X POST http://localhost:8080/auth/login \
 
 #### Todo 생성
 ```bash
-curl -X POST http://localhost:8080/todo \
+curl -X POST https://jakbu-api.dsmhs.kr/todo \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer {JWT_TOKEN}" \
   -d '{
@@ -510,25 +510,25 @@ curl -X POST http://localhost:8080/todo \
 
 #### 오늘의 Todo 조회
 ```bash
-curl -X GET http://localhost:8080/todo/today \
+curl -X GET https://jakbu-api.dsmhs.kr/todo/today \
   -H "Authorization: Bearer {JWT_TOKEN}"
 ```
 
 #### 특정 날짜 Todo 조회
 ```bash
-curl -X GET "http://localhost:8080/todo/date?date=2025-01-15" \
+curl -X GET "https://jakbu-api.dsmhs.kr/todo/date?date=2025-01-15" \
   -H "Authorization: Bearer {JWT_TOKEN}"
 ```
 
 #### Todo 완료 처리
 ```bash
-curl -X POST http://localhost:8080/todo/1/done \
+curl -X POST https://jakbu-api.dsmhs.kr/todo/1/done \
   -H "Authorization: Bearer {JWT_TOKEN}"
 ```
 
 #### FCM 토큰 저장
 ```bash
-curl -X POST http://localhost:8080/notification/token \
+curl -X POST https://jakbu-api.dsmhs.kr/notification/token \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer {JWT_TOKEN}" \
   -d '{
@@ -538,7 +538,7 @@ curl -X POST http://localhost:8080/notification/token \
 
 #### 알림 설정 저장
 ```bash
-curl -X POST http://localhost:8080/notification/setting \
+curl -X POST https://jakbu-api.dsmhs.kr/notification/setting \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer {JWT_TOKEN}" \
   -d '{
