@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+firebase-admin.json
+src/main/resources/firebase-admin.json
