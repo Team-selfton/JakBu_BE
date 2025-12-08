@@ -1,13 +1,16 @@
-package com.example.jakbu_be;
+package com.jakbu;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-public class JakBuBeApplication {
+@EnableScheduling
+public class JakBuApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(JakBuBeApplication.class, args);
+        SpringApplication.run(JakBuApplication.class, args);
     }
 
 }
+

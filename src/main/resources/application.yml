@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: jakbu-server
+  
+  datasource:
+    url: jdbc:mysql://localhost:3306/jakbu?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+jwt:
+  secret: jakbu-secret-key-for-jwt-token-generation-minimum-256-bits-required-for-hs256-algorithm
+  expiration: 86400000 # 24 hours in milliseconds
+
+firebase:
+  config-path: firebase-admin.json
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.jakbu: DEBUG
+    org.springframework.security: DEBUG
+
