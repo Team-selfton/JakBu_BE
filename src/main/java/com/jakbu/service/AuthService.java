@@ -1,12 +1,12 @@
 package com.jakbu.service;
 
 import com.jakbu.domain.User;
+import com.jakbu.util.JwtUtil;
 import com.jakbu.dto.AuthRequest;
 import com.jakbu.dto.AuthResponse;
 import com.jakbu.dto.KakaoLoginRequest;
 import com.jakbu.dto.LoginRequest;
 import com.jakbu.repository.UserRepository;
-import com.jakbu.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
