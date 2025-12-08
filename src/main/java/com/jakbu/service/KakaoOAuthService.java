@@ -1,6 +1,7 @@
 package com.jakbu.service;
 
 import com.jakbu.domain.User;
+import com.jakbu.dto.AuthResponse;
 import com.jakbu.dto.KakaoTokenResponse;
 import com.jakbu.dto.KakaoUserInfoResponse;
 import com.jakbu.repository.UserRepository;
@@ -48,8 +49,11 @@ public class KakaoOAuthService {
 
     /**
      * 인가 코드로 카카오 액세스 토큰 발급
+     * 
+     * @param code 카카오 인가 코드
+     * @return KakaoTokenResponse
      */
-    public KakaoTokenResponse getAccessToken(String code) {
+    public KakaoTokenResponse requestToken(String code) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
@@ -78,8 +82,11 @@ public class KakaoOAuthService {
 
     /**
      * 액세스 토큰으로 카카오 사용자 정보 조회
+     * 
+     * @param accessToken 카카오 액세스 토큰
+     * @return KakaoUserInfoResponse
      */
-    public KakaoUserInfoResponse getUserInfo(String accessToken) {
+    public KakaoUserInfoResponse requestUserInfo(String accessToken) {
         try {
             KakaoUserInfoResponse response = webClient.get()
                     .uri(userInfoUri)
@@ -100,8 +107,13 @@ public class KakaoOAuthService {
 
     /**
      * 카카오 사용자 정보로 로그인 또는 회원가입 처리
+     * email, nickname 기반으로 회원 조회 후 없으면 새 User 생성
+     * JWT 생성 후 반환
+     * 
+     * @param kakaoUserInfo 카카오 사용자 정보
+     * @return AuthResponse (JWT 토큰 포함)
      */
-    public com.jakbu.dto.AuthResponse processKakaoLogin(KakaoUserInfoResponse kakaoUserInfo) {
+    public AuthResponse processLogin(KakaoUserInfoResponse kakaoUserInfo) {
         Long kakaoId = kakaoUserInfo.id();
         String nickname = kakaoUserInfo.getNickname();
         String email = kakaoUserInfo.getEmail();
@@ -111,22 +123,36 @@ public class KakaoOAuthService {
             nickname = "카카오사용자" + kakaoId;
         }
 
-        // 카카오 ID로 사용자 조회
-        Optional<User> existingUser = userRepository.findByKakaoId(kakaoId);
+        // 1. 카카오 ID로 사용자 조회
+        Optional<User> existingUserByKakaoId = userRepository.findByKakaoId(kakaoId);
+        
+        // 2. 이메일이 있으면 이메일로도 조회
+        Optional<User> existingUserByEmail = Optional.empty();
+        if (email != null && !email.isEmpty()) {
+            existingUserByEmail = userRepository.findByEmail(email);
+        }
 
         User user;
-        if (existingUser.isPresent()) {
-            // 기존 사용자 로그인
-            user = existingUser.get();
+        if (existingUserByKakaoId.isPresent()) {
+            // 카카오 ID로 기존 사용자 찾음 - 로그인
+            user = existingUserByKakaoId.get();
+        } else if (existingUserByEmail.isPresent()) {
+            // 이메일로 기존 사용자 찾음 - 카카오 ID 연결
+            user = existingUserByEmail.get();
+            // 카카오 ID가 없으면 연결
+            if (user.getKakaoId() == null) {
+                user = User.linkKakaoAccount(user, kakaoId);
+                user = userRepository.save(user);
+            }
         } else {
-            // 신규 사용자 자동 회원가입
-            user = User.createKakaoUser(kakaoId, nickname);
+            // 신규 사용자 - 자동 회원가입
+            user = User.createKakaoUser(kakaoId, nickname, email);
             user = userRepository.save(user);
         }
 
-        // JWT 토큰 발급
+        // JWT 토큰 발급 (userId 기반)
         String token = jwtUtil.generateToken(user.getId());
-        return new com.jakbu.dto.AuthResponse(token, user.getId(), user.getName());
+        return new AuthResponse(token, user.getId(), user.getName());
     }
 }
 
