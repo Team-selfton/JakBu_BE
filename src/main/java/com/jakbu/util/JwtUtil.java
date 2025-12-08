@@ -3,6 +3,7 @@ package com.jakbu.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -15,8 +16,7 @@ public class JwtUtil {
     private final SecretKey secretKey;
     private final long expiration = 1000L * 60 * 60 * 24; // 1일
 
-    public JwtUtil() {
-        String secret = "your-secret-key-your-secret-key-should-be-long";
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -33,13 +33,13 @@ public class JwtUtil {
     }
 
     public Long getUserIdFromToken(String token) {
-        Claims payload = Jwts.parser()
+        Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
 
-        return Long.parseLong(payload.getSubject());
+        return Long.parseLong(claims.getSubject());
     }
 
     public boolean validateToken(String token) {
