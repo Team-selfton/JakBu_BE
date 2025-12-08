@@ -7,22 +7,28 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 
 @Configuration
 public class FirebaseConfig {
 
-    @Value("${firebase.config-path}")
-    private String firebaseConfigPath;
+    @Value("${firebase.config-base64}")
+    private String firebaseConfigBase64;
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
-            InputStream serviceAccount =
-                    new ClassPathResource(firebaseConfigPath).getInputStream();
+            if (firebaseConfigBase64 == null || firebaseConfigBase64.isEmpty()) {
+                throw new IllegalStateException("FIREBASE_CONFIG_BASE64 environment variable is required");
+            }
+
+            // Base64 디코딩
+            byte[] decodedBytes = Base64.getDecoder().decode(firebaseConfigBase64);
+            InputStream serviceAccount = new ByteArrayInputStream(decodedBytes);
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -32,7 +38,6 @@ public class FirebaseConfig {
         }
         return FirebaseApp.getInstance();
     }
-
 
     @Bean
     public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
