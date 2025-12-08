@@ -250,11 +250,39 @@ GET /todo/date?date=2025-01-15
 
 **에러 응답**:
 - `401 Unauthorized`: JWT 토큰이 없거나 유효하지 않은 경우
-- `400 Bad Request`: 날짜 형식이 잘못된 경우
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+- `400 Bad Request`: 날짜 파라미터가 없거나 형식이 잘못된 경우
+  ```json
+  {
+    "message": "Date parameter is required",
+    "error": "INVALID_DATE",
+    "status": 400
+  }
+  ```
+  또는
+  ```json
+  {
+    "message": "Invalid date format. Expected format: YYYY-MM-DD",
+    "error": "INVALID_DATE_FORMAT",
+    "status": 400
+  }
+  ```
+- `500 Internal Server Error`: 서버 내부 오류
+  ```json
+  {
+    "message": "서버에서 데이터를 가져오는 중 오류가 발생했습니다.",
+    "error": "UNKNOWN_ERROR",
+    "status": 500
+  }
+  ```
 
 ---
 
-### 2.4 Todo 상태 토글
+### 2.4 Todo 상태 토글 (DONE ↔ TODO)
 
 Todo의 완료 상태를 토글합니다. TODO 상태면 DONE으로, DONE 상태면 TODO로 변경됩니다.
 
@@ -298,6 +326,61 @@ POST /todo/1/done
   "title": "운동하기",
   "date": "2025-01-15",
   "status": "TODO"
+}
+```
+
+**에러 응답**:
+- `401 Unauthorized`: JWT 토큰이 없거나 유효하지 않은 경우
+- `400 Bad Request`: Todo를 찾을 수 없거나 권한이 없는 경우
+  ```json
+  {
+    "message": "Todo not found"
+  }
+  ```
+  또는
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+
+### 2.5 Todo 상태 설정 (DONE/TODO 명시적 설정)
+
+특정 Todo의 상태를 명시적으로 DONE 또는 TODO로 설정합니다.
+
+**Endpoint**: `POST /todo/{id}/status`
+
+**인증**: 필요 (JWT)
+
+**Request Headers**:
+```
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**Path Parameters**:
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| id | Long | ✅ | Todo ID |
+
+**Request Body**:
+```json
+{
+  "done": true
+}
+```
+
+**필드**:
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| done | Boolean | ✅ | true면 DONE, false면 TODO |
+
+**Response** (200 OK):
+```json
+{
+  "id": 1,
+  "title": "운동하기",
+  "date": "2025-01-15",
+  "status": "DONE"
 }
 ```
 
@@ -530,14 +613,29 @@ curl -X GET https://jakbu-api.dsmhs.kr/todo/today \
 
 #### 특정 날짜 Todo 조회
 ```bash
-curl -X GET "https://jakbu-api.dsmhs.kr/todo/date?date=2025-01-15" \
-  -H "Authorization: Bearer {JWT_TOKEN}"
+curl -X GET "https://jakbu-api.dsmhs.kr/todo/date?date=2025-12-09" \
+  -H "Authorization: Bearer {JWT_TOKEN}" \
+  -H "Content-Type: application/json"
 ```
 
-#### Todo 완료 처리
+**주의사항**:
+- 날짜 파라미터는 반드시 `YYYY-MM-DD` 형식이어야 합니다.
+- 날짜 파라미터가 없거나 잘못된 형식인 경우 400 Bad Request 오류가 반환됩니다.
+
+#### Todo 완료 상태 토글
 ```bash
 curl -X POST https://jakbu-api.dsmhs.kr/todo/1/done \
   -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
+#### Todo 상태 설정 (명시적)
+```bash
+curl -X POST https://jakbu-api.dsmhs.kr/todo/1/status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {JWT_TOKEN}" \
+  -d '{
+    "done": true
+  }'
 ```
 
 #### FCM 토큰 저장

@@ -2,7 +2,9 @@ package com.jakbu.repository;
 
 import com.jakbu.domain.Todo;
 import com.jakbu.domain.enums.TodoStatus;
+import com.jakbu.domain.enums.TodoStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,5 +24,11 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     default boolean existsTodoToday(Long userId, LocalDate today) {
         return existsByUserIdAndDateAndStatus(userId, today, TodoStatus.TODO);
     }
+
+    @Modifying
+    @Query("UPDATE Todo t SET t.status = :resetStatus WHERE t.date < :targetDate AND t.status = :currentStatus")
+    int resetDoneBeforeDate(@Param("targetDate") LocalDate targetDate,
+                            @Param("currentStatus") TodoStatus currentStatus,
+                            @Param("resetStatus") TodoStatus resetStatus);
 }
 

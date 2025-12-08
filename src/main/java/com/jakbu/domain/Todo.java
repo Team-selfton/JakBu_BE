@@ -53,5 +53,9 @@ public class Todo {
             this.status = TodoStatus.TODO;
         }
     }
+
+    public void setDone(boolean done) {
+        this.status = done ? TodoStatus.DONE : TodoStatus.TODO;
+    }
 }
 
