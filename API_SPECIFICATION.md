@@ -254,9 +254,9 @@ GET /todo/date?date=2025-01-15
 
 ---
 
-### 2.4 Todo 완료 처리
+### 2.4 Todo 상태 토글
 
-Todo를 완료 상태로 변경합니다.
+Todo의 완료 상태를 토글합니다. TODO 상태면 DONE으로, DONE 상태면 TODO로 변경됩니다.
 
 **Endpoint**: `POST /todo/{id}/done`
 
@@ -277,6 +277,10 @@ Authorization: Bearer {JWT_TOKEN}
 POST /todo/1/done
 ```
 
+**동작 방식**:
+- 현재 상태가 `TODO`인 경우 → `DONE`으로 변경
+- 현재 상태가 `DONE`인 경우 → `TODO`로 변경
+
 **Response** (200 OK):
 ```json
 {
@@ -284,6 +288,16 @@ POST /todo/1/done
   "title": "운동하기",
   "date": "2025-01-15",
   "status": "DONE"
+}
+```
+
+또는 (이미 DONE 상태였던 경우):
+```json
+{
+  "id": 1,
+  "title": "운동하기",
+  "date": "2025-01-15",
+  "status": "TODO"
 }
 ```
 

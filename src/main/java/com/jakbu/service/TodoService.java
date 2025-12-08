@@ -56,7 +56,8 @@ public class TodoService {
             throw new RuntimeException("Unauthorized");
         }
 
-        todo.markDone();
+        // 상태 토글: TODO -> DONE, DONE -> TODO
+        todo.toggleStatus();
         todo = todoRepository.save(todo);
 
         return new TodoResponse(todo.getId(), todo.getTitle(), todo.getDate(), todo.getStatus());

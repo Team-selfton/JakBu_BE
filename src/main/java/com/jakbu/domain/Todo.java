@@ -41,5 +41,17 @@ public class Todo {
     public void markDone() {
         this.status = TodoStatus.DONE;
     }
+
+    public void markUndo() {
+        this.status = TodoStatus.TODO;
+    }
+
+    public void toggleStatus() {
+        if (this.status == TodoStatus.TODO) {
+            this.status = TodoStatus.DONE;
+        } else {
+            this.status = TodoStatus.TODO;
+        }
+    }
 }
 
