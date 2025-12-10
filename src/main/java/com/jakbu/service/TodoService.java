@@ -79,6 +79,17 @@ public class TodoService {
         return new TodoResponse(todo.getId(), todo.getTitle(), todo.getDate(), todo.getStatus());
     }
 
+    public void deleteTodo(Long userId, Long todoId) {
+        Todo todo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new RuntimeException("Todo not found"));
+
+        if (!todo.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        todoRepository.delete(todo);
+    }
+
     /**
      * 자정에 이전 날짜의 완료 상태를 초기화 (DONE -> TODO)
      */

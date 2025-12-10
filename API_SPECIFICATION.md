@@ -464,6 +464,49 @@ Authorization: Bearer {JWT_TOKEN}
 
 ---
 
+### 2.6 Todo 삭제
+
+특정 Todo를 삭제합니다. 상태가 `TODO`이든 `DONE`이든 모두 삭제할 수 있습니다.
+
+**Endpoint**: `DELETE /todo/{id}`
+
+**인증**: 필요 (JWT)
+
+**Request Headers**:
+```
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**Path Parameters**:
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| id | Long | ✅ | Todo ID |
+
+**예시**:
+```
+DELETE /todo/1
+```
+
+**Response** (204 No Content):
+- 본문 없음
+
+**에러 응답**:
+- `401 Unauthorized`: JWT 토큰이 없거나 유효하지 않은 경우
+- `400 Bad Request`: Todo를 찾을 수 없거나 권한이 없는 경우
+  ```json
+  {
+    "message": "Todo not found"
+  }
+  ```
+  또는
+  ```json
+  {
+    "message": "Unauthorized"
+  }
+  ```
+
+---
+
 ## 3. 알림 API (NotificationController)
 
 모든 알림 API는 JWT 인증이 필요합니다.
@@ -710,6 +753,12 @@ curl -X POST https://jakbu-api.dsmhs.kr/todo/1/status \
   }'
 ```
 
+#### Todo 삭제
+```bash
+curl -X DELETE https://jakbu-api.dsmhs.kr/todo/1 \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
 #### FCM 토큰 저장
 ```bash
 curl -X POST https://jakbu-api.dsmhs.kr/notification/token \
@@ -736,5 +785,5 @@ curl -X POST https://jakbu-api.dsmhs.kr/notification/setting \
 ## 버전 정보
 
 - **API Version**: 1.0
-- **Last Updated**: 2025-01-15
+- **Last Updated**: 2025-12-10
 

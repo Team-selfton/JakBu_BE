@@ -104,5 +104,14 @@ public class TodoController {
         TodoResponse response = todoService.updateTodoStatus(userId, id, request);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTodo(
+            @PathVariable Long id,
+            Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        todoService.deleteTodo(userId, id);
+        return ResponseEntity.noContent().build();
+    }
 }
 
