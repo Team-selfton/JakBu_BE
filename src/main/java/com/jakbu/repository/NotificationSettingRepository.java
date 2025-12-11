@@ -12,5 +12,8 @@ public interface NotificationSettingRepository extends JpaRepository<Notificatio
     Optional<NotificationSetting> findByUserId(Long userId);
     
     List<NotificationSetting> findByEnabledTrue();
+
+    @Modifying
+    void deleteByUserId(Long userId);
 }
 

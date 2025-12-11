@@ -208,6 +208,35 @@ Authorization: Bearer {JWT_TOKEN}
 
 ---
 
+### 1.5 회원 탈퇴
+
+계정 및 연관 데이터를 삭제합니다. (Todo, 알림 설정)
+
+**Endpoint**: `DELETE /auth/account`
+
+**인증**: 필요 (JWT)
+
+**Request Headers**:
+```
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**Request Body**: 없음
+
+**Response** (204 No Content):
+- 본문 없음
+
+**에러 응답**:
+- `401 Unauthorized`: JWT 토큰이 없거나 유효하지 않은 경우
+- `400 Bad Request`: 사용자를 찾을 수 없는 경우
+  ```json
+  {
+    "message": "User not found"
+  }
+  ```
+
+---
+
 ## 2. ToDo API (TodoController)
 
 모든 ToDo API는 JWT 인증이 필요합니다.
@@ -741,6 +770,12 @@ curl -X POST https://jakbu-api.dsmhs.kr/auth/refresh-token \
 #### 로그아웃
 ```bash
 curl -X POST https://jakbu-api.dsmhs.kr/auth/logout \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
+#### 회원 탈퇴
+```bash
+curl -X DELETE https://jakbu-api.dsmhs.kr/auth/account \
   -H "Authorization: Bearer {JWT_TOKEN}"
 ```
 

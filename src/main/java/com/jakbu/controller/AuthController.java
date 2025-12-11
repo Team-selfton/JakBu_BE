@@ -43,6 +43,13 @@ public class AuthController {
         authService.logout(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/account")
+    public ResponseEntity<Void> deleteAccount(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        authService.deleteAccount(userId);
+        return ResponseEntity.noContent().build();
+    }
 }
 
 

@@ -30,5 +30,9 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     int resetDoneBeforeDate(@Param("targetDate") LocalDate targetDate,
                             @Param("currentStatus") TodoStatus currentStatus,
                             @Param("resetStatus") TodoStatus resetStatus);
+
+    @Modifying
+    @Query("DELETE FROM Todo t WHERE t.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }
 

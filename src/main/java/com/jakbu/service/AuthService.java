@@ -1,6 +1,8 @@
 package com.jakbu.service;
 
 import com.jakbu.domain.User;
+import com.jakbu.repository.NotificationSettingRepository;
+import com.jakbu.repository.TodoRepository;
 import com.jakbu.util.JwtUtil;
 import com.jakbu.dto.AuthRequest;
 import com.jakbu.dto.AuthResponse;
@@ -18,11 +20,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final TodoRepository todoRepository;
+    private final NotificationSettingRepository notificationSettingRepository;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil,
+                       TodoRepository todoRepository,
+                       NotificationSettingRepository notificationSettingRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.todoRepository = todoRepository;
+        this.notificationSettingRepository = notificationSettingRepository;
     }
 
     public AuthResponse signup(AuthRequest request) {
@@ -97,6 +107,18 @@ public class AuthService {
 
         user.updateRefreshToken(null);
         userRepository.save(user);
+    }
+
+    /**
+     * 회원 탈퇴: 연관된 Todo 및 알림 설정 제거 후 사용자 삭제
+     */
+    public void deleteAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        todoRepository.deleteByUserId(userId);
+        notificationSettingRepository.deleteByUserId(userId);
+        userRepository.delete(user);
     }
 }
 
