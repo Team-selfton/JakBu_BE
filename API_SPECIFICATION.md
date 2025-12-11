@@ -179,6 +179,35 @@ Account ID와 비밀번호로 로그인합니다.
 
 ---
 
+### 1.4 로그아웃
+
+저장된 리프레시 토큰을 삭제하여 더 이상 토큰 재발급이 불가능하도록 합니다.
+
+**Endpoint**: `POST /auth/logout`
+
+**인증**: 필요 (JWT)
+
+**Request Headers**:
+```
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**Request Body**: 없음
+
+**Response** (204 No Content):
+- 본문 없음
+
+**에러 응답**:
+- `401 Unauthorized`: JWT 토큰이 없거나 유효하지 않은 경우
+- `400 Bad Request`: 사용자를 찾을 수 없는 경우
+  ```json
+  {
+    "message": "User not found"
+  }
+  ```
+
+---
+
 ## 2. ToDo API (TodoController)
 
 모든 ToDo API는 JWT 인증이 필요합니다.
@@ -709,6 +738,12 @@ curl -X POST https://jakbu-api.dsmhs.kr/auth/refresh-token \
   }'
 ```
 
+#### 로그아웃
+```bash
+curl -X POST https://jakbu-api.dsmhs.kr/auth/logout \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
 #### Todo 생성
 ```bash
 curl -X POST https://jakbu-api.dsmhs.kr/todo \
@@ -785,5 +820,5 @@ curl -X POST https://jakbu-api.dsmhs.kr/notification/setting \
 ## 버전 정보
 
 - **API Version**: 1.0
-- **Last Updated**: 2025-12-10
+- **Last Updated**: 2025-12-11
 

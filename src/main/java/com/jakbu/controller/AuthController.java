@@ -36,6 +36,13 @@ public class AuthController {
         AuthResponse response = authService.refreshToken(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        authService.logout(userId);
+        return ResponseEntity.noContent().build();
+    }
 }
 
 

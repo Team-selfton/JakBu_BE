@@ -87,5 +87,16 @@ public class AuthService {
 
         return new AuthResponse(newAccessToken, refreshToken, user.getId(), user.getName());
     }
+
+    /**
+     * 로그아웃: 저장된 리프레시 토큰을 제거하여 재발급을 막음
+     */
+    public void logout(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.updateRefreshToken(null);
+        userRepository.save(user);
+    }
 }
 
